@@ -1,48 +1,27 @@
 {
-    "name": "react-starter-ts",
+    "name": "typescript-starter",
     "version": "0.1.0",
     "private": false,
-    "homepage": "https://leovigna.github.io/react-starter-ts",
+    "homepage": "https://leovigna.github.io/typescript-starter",
     "copyright": "Copyright 2020 Leo Vigna",
     "license": "MIT",
-    "dependencies": {
-        "@testing-library/jest-dom": "^4.2.4",
-        "@testing-library/react": "^9.3.2",
-        "@testing-library/user-event": "^7.1.2",
-        "@types/jest": "^24.0.0",
-        "@types/node": "^12.0.0",
-        "@types/react": "^16.9.0",
-        "@types/react-dom": "^16.9.0",
-        "react": "^16.13.0",
-        "react-dom": "^16.13.0",
-        "react-scripts": "3.4.0",
-        "typescript": "~3.7.2"
-    },
+    "dependencies": {},
     "scripts": {
-        "start": "react-scripts start",
-        "build": "react-scripts build",
-        "test": "react-scripts test",
-        "eject": "react-scripts eject",
+        "clean": "rimraf dist",
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "node dist/index.js",
+        "build": "npm -s run clean && tsc",
         "lint": "eslint src/**/*.ts",
-        "predeploy": "npm run build",
-        "deploy": "gh-pages -d build"
-    },
-    "eslintConfig": {
-        "extends": "react-app"
-    },
-    "browserslist": {
-        "production": [
-            ">0.2%",
-            "not dead",
-            "not op_mini all"
-        ],
-        "development": [
-            "last 1 chrome version",
-            "last 1 firefox version",
-            "last 1 safari version"
-        ]
+        "lint:fix": "eslint src/**/*.ts --fix",
+        "dev": "ts-node-dev --respawn src/index"
     },
     "devDependencies": {
+        "@types/jest": "^24.0.0",
+        "@types/node": "^12.0.0",
+        "typescript": "~3.7.2",
+        "dotenv": "^8.2.0",
+        "ts-node": "^8.8.2",
+        "ts-node-dev": "^1.0.0-pre.44",
         "@typescript-eslint/eslint-plugin": "^2.24.0",
         "@typescript-eslint/parser": "^2.24.0",
         "eslint": "^6.8.0",
@@ -50,11 +29,9 @@
         "eslint-config-prettier": "^6.10.0",
         "eslint-plugin-import": "^2.20.1",
         "eslint-plugin-prettier": "^3.1.2",
-        "eslint-plugin-react": "^7.19.0",
-        "eslint-plugin-react-hooks": "^2.5.0",
-        "gh-pages": "^2.2.0",
         "husky": "^4.2.3",
         "lint-staged": "^10.0.8",
-        "prettier": "^1.19.1"
+        "prettier": "^1.19.1",
+        "rimraf": "^3.0.2"
     }
 }

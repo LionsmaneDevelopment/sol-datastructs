@@ -4,7 +4,6 @@ module.exports = {
     },
     parser: '@typescript-eslint/parser',  // Specifies the ESLint parser
     extends: [
-        'plugin:react/recommended',  // Uses the recommended rules from @eslint-plugin-react
         'plugin:@typescript-eslint/recommended',  // Uses the recommended rules from @typescript-eslint/eslint-plugin
         'prettier/@typescript-eslint',
         'plugin:prettier/recommended',
@@ -21,10 +20,6 @@ module.exports = {
         // Place to specify ESLint rules. Can be used to overwrite rules specified from the extended configs
         // e.g. '@typescript-eslint/explicit-function-return-type': 'off',
         'semi': 0,
-        'react/jsx-filename-extension': [1, {
-            'extensions': ['.js', '.jsx', '.ts', '.tsx']
-        }],
-        'react/prop-types': 0,
         'linebreak-style': ['error', 'unix'],
         quotes: ['error', 'single'],
         'no-console': 'warn',
@@ -37,9 +32,6 @@ module.exports = {
         'no-empty': 'warn'
     },
     settings: {
-        react: {
-            version: 'detect',  // Tells eslint-plugin-react to automatically detect the version of React to use
-        },
         'import/resolver': {
             'node': {
                 'extensions': ['.js', '.jsx', '.ts', '.tsx']
@@ -48,7 +40,7 @@ module.exports = {
     },
     'overrides': [
         {
-            'files': ['**/*.ts', '**/*.tsx'],
+            'files': ['**/*.ts'],
         }
     ]
 };

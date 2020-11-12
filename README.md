@@ -1,14 +1,11 @@
-# React Starter Project
-Built with https://www.sitepoint.com/react-with-typescript-best-practices/
+# Typescript Starter Project
 
-Leo's React starter project.
-After working on many React projects, I've decided to fork all new projects from this starter repo. Created with create-react-app + additional features using eslint + flow. Husky enables pre-commit formatting/tests ensuring consistent styling. Also featured quick deployment using gh-pages.
+Typescript starter project.
 
 ## Getting Started
 
 ## Installing
 
-If you are new to React follow these steps.
 To install all required dependencies.
 
 ```
@@ -20,10 +17,10 @@ $ yarn
 To clone this starter repo and add it as an upstream folow below:
 
 ```
-$ git clone https://github.com/leovigna/react-starter-ts.git myproject
+$ git clone https://github.com/leovigna/typescript-starter.git myproject
 $ cd myproject
 $ git remote set-url origin https://github.com/leovigna/myproject.git
-$ git remote add upstream https://github.com/leovigna/react-starter-ts.git
+$ git remote add upstream https://github.com/leovigna/typescript-starter.git
 $ git push origin master
 $ git push --all
 ```
@@ -44,7 +41,7 @@ Install dependencies, including devDependencies.
 $ yarn -D
 ```
 
-- [Husky](https://github.com/typicode/husky) - Prevent bad commits
+-   [Husky](https://github.com/typicode/husky) - Prevent bad commits
 
 ### Testing
 
@@ -72,5 +69,5 @@ To contribute code, feel free to fork this repo.
 
 ## License
 
-2019 Leo Vigna
+2020 Leo Vigna
 MIT License.
