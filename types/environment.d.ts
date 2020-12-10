@@ -2,6 +2,7 @@ declare global {
     namespace NodeJS {
         interface ProcessEnv {
             NAME?: string;
+            NODE_ENV: 'development' | 'production';
         }
     }
 }
