@@ -1,71 +1,32 @@
-# Solidity Starter Project
+# Solidity Data Structures
 
-Solidity starter project.
+Common gas-optimized data structures implemented in solidity. Currently supports:
 
-## Getting Started
+-   ArrayLib: Gas Optimized Array for uint16, uint32, uint64, uint128
+-   TreeLib: A flexible tree index library, supports wide tress with more than 2 leaves per node.
+-   HeapLib: A gas optimized compact heap datastructure. Uses ArrayLib as its storage layer and TreeLib to navigate the heap.
+-   Math: A LogBaseN calculator. Used to compute height of tree for informational purposes.
 
-## Installing
+### Contracts
 
-To install all required dependencies.
+These contracts are all solidity libraries meant to be used within externally facing contracts. See the test contracts as an example on how to use the libraries.
 
-```
-$ yarn
-```
+### ArrayLib
 
-## Cloning
+Optimized packed array library (uint16,uint32...), conforms to general Solidity storage layout structure by storing data at keccak256(slot) + i.
+ArrayLibUtils also implements a naive `push()` function for in-memory arrays (returns a copy with appended element).
 
-To clone this starter repo and add it as an upstream folow below:
+### TreeLib
 
-```
-$ git clone https://github.com/leovigna/solidity-starter.git myproject
-$ cd myproject
-$ git remote set-url origin git@github.com/leovigna/myproject.git
-$ git remote add upstream https://github.com/leovigna/solidity-starter.git
-$ git push origin master
-$ git push --all
-```
+Packed tree stores multiple nodes per storage slot. TreeLib helps with computations such as finding out the parent() or leaves() of a node.
 
-Then to sync any new changes form this repo to the new repo follow [this](https://help.github.com/en/articles/syncing-a-fork):
+### HeapLib
 
-```
-$ git fetch upstream
-$ git checkout master
-$ git merge upstream/master
-```
+Optimized heap using ArrayLib as storage and TreeLib to compute tree traversal. See tests for benchmarks.
 
-## Dependencies
+### LogBaseNLib
 
-Install dependencies, including devDependencies.
-
-```
-$ yarn -D
-```
-
--   [Husky](https://github.com/typicode/husky) - Prevent bad commits
-
-### Testing
-
-```
-$ yarn test
-```
-
-### Deployment
-
-```
-$ yarn deploy
-```
-
-### Codestyle
-
-```
-$ yarn lint
-```
-
-### Also used
-
-## Contributing
-
-To contribute code, feel free to fork this repo.
+Computes logarithm for any base (provided magic constant logN(2) is stored). This is used for informational purposes when computing the tree height only, though other applications are also possible.
 
 ## License
 
