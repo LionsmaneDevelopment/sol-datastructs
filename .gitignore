@@ -3,6 +3,7 @@
 build/
 migrations/
 test/
+!contracts/test/
 types/truffle-contracts/
 types/web3-v1-contracts/
 
