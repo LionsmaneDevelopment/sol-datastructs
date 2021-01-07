@@ -105,7 +105,6 @@ export async function configure(config?: FullTestConfig) {
 
         ganacheEnv = await configureGanache(config?.ganacheConfig);
         accounts = await configureAccounts(ganacheEnv.web3);
-        web3 = ganacheEnv.web3;
     }
 
     return { ganache: ganacheEnv, accounts };

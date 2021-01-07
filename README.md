@@ -1,6 +1,6 @@
-# Typescript Starter Project
+# Solidity Starter Project
 
-Typescript starter project.
+Solidity starter project.
 
 ## Getting Started
 
@@ -17,10 +17,10 @@ $ yarn
 To clone this starter repo and add it as an upstream folow below:
 
 ```
-$ git clone https://github.com/leovigna/typescript-starter.git myproject
+$ git clone https://github.com/leovigna/solidity-starter.git myproject
 $ cd myproject
-$ git remote set-url origin https://github.com/leovigna/myproject.git
-$ git remote add upstream https://github.com/leovigna/typescript-starter.git
+$ git remote set-url origin git@github.com/leovigna/myproject.git
+$ git remote add upstream https://github.com/leovigna/solidity-starter.git
 $ git push origin master
 $ git push --all
 ```

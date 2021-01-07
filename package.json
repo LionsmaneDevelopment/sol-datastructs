@@ -1,8 +1,8 @@
 {
-    "name": "typescript-starter",
+    "name": "solidity-starter",
     "version": "0.1.0",
     "private": false,
-    "homepage": "https://leovigna.github.io/typescript-starter",
+    "homepage": "https://leovigna.github.io/solidity-starter",
     "copyright": "Copyright 2020 Leo Vigna",
     "license": "MIT",
     "scripts": {
