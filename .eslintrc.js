@@ -13,7 +13,7 @@ module.exports = {
         ecmaVersion: 2018,  // Allows for the parsing of modern ECMAScript features
         sourceType: 'module',  // Allows for the use of imports
         ecmaFeatures: {
-            jsx: true,  // Allows for the parsing of JSX
+            jsx: false,  // Allows for the parsing of JSX
         },
     },
     rules: {
@@ -29,6 +29,8 @@ module.exports = {
             { vars: 'all', args: 'after-used', ignoreRestSiblings: false }
         ],
         '@typescript-eslint/explicit-function-return-type': 'warn', // Consider using explicit annotations for object literals and function return types even when they can be inferred.
+        '@typescript-eslint/ban-ts-ignore': 'warn',
+        '@typescript-eslint/no-var-requires': 'off',
         'no-empty': 'warn'
     },
     settings: {
