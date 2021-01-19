@@ -66,6 +66,26 @@ library ArrayLibUInt {
     }
 
     /**
+     * @dev get() with bounds check
+     * @param bitLength uint bit length
+     * @param slot storage slot
+     * @param i index
+     * @return val
+     */
+    function getSAFE(
+        uint8 bitLength,
+        bytes32 slot,
+        uint256 i
+    ) internal view returns (uint256 val) {
+        uint256 length;
+        assembly {
+            length := sload(slot)
+        }
+        require(i < length, 'Index out of bounds!');
+        return get(bitLength, slot, i);
+    }
+
+    /**
      * @dev Set array[i] = val
      * @param bitLength uint bit length
      * @param slot storage slot
@@ -95,6 +115,27 @@ library ArrayLibUInt {
 
             sstore(idx, newStoredVal)
         }
+    }
+
+    /**
+     * @dev set() with bounds check
+     * @param bitLength uint bit length
+     * @param slot storage slot
+     * @param i index
+     * @param val value
+     */
+    function setSAFE(
+        uint8 bitLength,
+        bytes32 slot,
+        uint256 i,
+        uint256 val
+    ) internal {
+        uint256 length;
+        assembly {
+            length := sload(slot)
+        }
+        require(i < length, 'Index out of bounds!');
+        set(bitLength, slot, i, val);
     }
 
     /**
@@ -180,6 +221,28 @@ library ArrayLibUInt {
         uint256 b = get(bitLength, slot, j);
         set(bitLength, slot, i, b);
         set(bitLength, slot, j, a);
+    }
+
+    /**
+     * @dev swap() with bounds check
+     * @param bitLength uint bit length
+     * @param slot storage slot
+     * @param i index
+     * @param j subindex
+     */
+    function swapSAFE(
+        uint8 bitLength,
+        bytes32 slot,
+        uint256 i,
+        uint256 j
+    ) internal {
+        uint256 length;
+        assembly {
+            length := sload(slot)
+        }
+        require(i < length, 'Index out of bounds!');
+        require(j < length, 'Index out of bounds!');
+        swap(bitLength, slot, i, j);
     }
 
     /**
