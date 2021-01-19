@@ -152,6 +152,18 @@ export function testArrayLib(test: ArrayLibUIntTest) {
 
                 await equalArray(list, idxList);
             });
+
+            it('popBatch()', async () => {
+                initialExpected.pop();
+                await list.popBatch(1);
+                await equalArray(list, initialExpected);
+
+                initialExpected.pop();
+                initialExpected.pop();
+                initialExpected.pop();
+                await list.popBatch(3);
+                await equalArray(list, initialExpected);
+            });
         });
 
         it('pushBatch()', async () => {

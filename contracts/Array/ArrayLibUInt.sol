@@ -12,10 +12,10 @@ pragma solidity >=0.6.0;
  * The storage layout conforms to the Solidity standard as described at
  * https://docs.soliditylang.org/en/latest/internals/layout_in_storage.html
  *
- * Potential improvements:
- *  - Optimized batch inserts and reads
- *  - Optimized swaps
- *  - Bounds checked save insert
+ * Error Codes (to save on gas costs):
+ * - 1: Out of bounds
+ * - 2: Invalid arguments
+ *
  */
 library ArrayLibUInt {
     /**
@@ -167,7 +167,7 @@ library ArrayLibUInt {
         assembly {
             length := sload(slot)
         }
-        require(i < length, 'Index out of bounds!');
+        require(i < length, '1');
         return get(bitLength, slot, i);
     }
 
@@ -220,7 +220,7 @@ library ArrayLibUInt {
         assembly {
             length := sload(slot)
         }
-        require(i < length, 'Index out of bounds!');
+        require(i < length, '1');
         set(bitLength, slot, i, val);
     }
 
@@ -343,8 +343,8 @@ library ArrayLibUInt {
         assembly {
             length := sload(slot)
         }
-        require(i < length, 'Index out of bounds!');
-        require(j < length, 'Index out of bounds!');
+        require(i < length, '1');
+        require(j < length, '1');
         swap(bitLength, slot, i, j);
     }
 
@@ -400,7 +400,7 @@ library ArrayLibUInt {
         uint256[] memory iArray,
         uint256[] memory valArray
     ) internal {
-        require(iArray.length == valArray.length);
+        require(iArray.length == valArray.length, '2');
         uint256 slotPerStorage = 256 / bitLength;
 
         uint256 slotPrev = iArray[0] / slotPerStorage;
@@ -435,7 +435,6 @@ library ArrayLibUInt {
      * @param slot storage slot
      * @param valArray value array
      *
-     * TODO: optimize for bitpacked SSTORE
      */
     function pushBatch(
         uint8 bitLength,
@@ -491,15 +490,36 @@ library ArrayLibUInt {
      * @param slot storage slot
      * @param n number of times to pop
      *
-     * TODO: optimize for bitpacked SSTORE
      */
     function popBatch(
         uint8 bitLength,
         bytes32 slot,
         uint256 n
     ) internal {
-        for (uint256 i = 0; i < n; i++) {
-            pop(bitLength, slot);
+        //Decrement length
+        uint256 length;
+        assembly {
+            length := sload(slot) //SLOAD
+            sstore(slot, sub(length, n)) //decrease length
+        }
+        require(n <= length, '1');
+
+        //Pop last slot
+        uint256 slotPerStorage = 256 / bitLength;
+
+        uint256 storageLast = length / slotPerStorage; //last storage slot
+        uint256 subIdxInit = length % slotPerStorage;
+
+        uint256 storageClear = n / slotPerStorage;
+        uint256 storageClearRemainder = n % slotPerStorage;
+
+        if (storageClearRemainder == subIdxInit) {
+            storageClear += 1;
+        }
+
+        for (uint256 i = 0; i < storageClear; i++) {
+            //Pop storage slot
+            _setSlotData(slot, storageLast - i, 0); //STORE
         }
     }
 }
