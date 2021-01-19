@@ -442,9 +442,47 @@ library ArrayLibUInt {
         bytes32 slot,
         uint256[] memory valArray
     ) internal {
-        for (uint256 i = 0; i < valArray.length; i++) {
-            push(bitLength, slot, valArray[i]);
+        //Increment length
+        uint256 valArrayLength = valArray.length;
+        uint256 length;
+        assembly {
+            length := sload(slot) //array length
+            sstore(slot, add(length, valArrayLength)) //increase length
         }
+
+        //Fill last slot
+        uint256 slotPerStorage = 256 / bitLength;
+
+        uint256 slotPrev = length / slotPerStorage; //last slot
+        uint256 slotDataPrev;
+
+        uint256 subIdxInit = length % slotPerStorage;
+        if (subIdxInit != 0) {
+            slotDataPrev = _getSlotData(slot, slotPrev); //SLOAD
+            slotDataPrev = _setSlotDataValueAt(bitLength, slotDataPrev, subIdxInit, valArray[0]);
+        } else {
+            //New slot
+            slotDataPrev = _setSlotDataValueAt(bitLength, 0, subIdxInit, valArray[0]);
+        }
+
+        for (uint256 i = 1; i < valArray.length; i++) {
+            uint256 subIdx = (length + i) % slotPerStorage;
+            if (subIdx != 0) {
+                //Existing storage slot
+                //Set cached slot data
+                slotDataPrev = _setSlotDataValueAt(bitLength, slotDataPrev, subIdx, valArray[i]);
+            } else {
+                //New storage slot
+                //Write new data
+                _setSlotData(slot, slotPrev, slotDataPrev); //STORE
+                //New storage slot data
+                slotPrev += 1;
+                slotDataPrev = _setSlotDataValueAt(bitLength, 0, subIdx, valArray[i]);
+            }
+        }
+
+        //Write new data
+        _setSlotData(slot, slotPrev, slotDataPrev); //STORE
     }
 
     /**

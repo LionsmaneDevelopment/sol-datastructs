@@ -154,6 +154,16 @@ export function testArrayLib(test: ArrayLibUIntTest) {
             });
         });
 
+        it('pushBatch()', async () => {
+            const n = Math.floor(256 / BIT_LENGTH) + 1;
+            const expected = Array.from({ length: n }).map((_, idx) => MAX_INT.sub(Web3.utils.toBN(idx)).toString());
+            const pushBatchTx = await list.pushBatch(expected);
+            const total = pushBatchTx.receipt.gasUsed - 20000;
+            console.debug(`${test.name} pushBatch() full storage slot: ${total} gas`);
+
+            await equalArray(list, expected);
+        });
+
         describe('fuzzing', function() {
             it('push() 100x', async () => {
                 const expected = randomData(100).map(x => `${x}`);
