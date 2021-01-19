@@ -1,4 +1,4 @@
-//SPDX-License-Identifier: GPL-3.0-or-later
+//SPDX-License-Identifier: MIT
 pragma solidity >=0.6.0;
 import '../Tree/TreeLib.sol';
 import '../Array/ArrayLibUInt32.sol';
