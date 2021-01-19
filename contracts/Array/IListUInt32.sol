@@ -14,4 +14,12 @@ interface IListUInt32 {
     function swap(uint256 i, uint256 j) external;
 
     function pop() external;
+
+    function getBatch(uint256[] memory iArray) external view returns (uint256[] memory);
+
+    function setBatch(uint256[] memory iArray, uint256[] memory valArray) external;
+
+    function pushBatch(uint256[] memory valArray) external;
+
+    function popBatch(uint256 n) external;
 }

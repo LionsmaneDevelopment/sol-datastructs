@@ -28,4 +28,32 @@ contract TestArrayBasicUInt16 is IListUInt16 {
     function pop() external override {
         array.pop();
     }
+
+    /***** Batched Ops ******/
+    function getBatch(uint256[] memory iArray) external view override returns (uint256[] memory) {
+        uint256[] memory vArray = new uint256[](iArray.length);
+        for (uint256 i = 0; i < iArray.length; i++) {
+            vArray[i] = uint16(array[i]);
+        }
+
+        return vArray;
+    }
+
+    function setBatch(uint256[] memory iArray, uint256[] memory valArray) external override {
+        for (uint256 i = 0; i < iArray.length; i++) {
+            array[iArray[i]] = uint16(valArray[i]);
+        }
+    }
+
+    function pushBatch(uint256[] memory valArray) external override {
+        for (uint256 i = 0; i < valArray.length; i++) {
+            array.push(uint16(valArray[i]));
+        }
+    }
+
+    function popBatch(uint256 n) external override {
+        for (uint256 i = 0; i < n; i++) {
+            array.pop();
+        }
+    }
 }

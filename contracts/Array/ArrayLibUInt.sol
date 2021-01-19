@@ -350,13 +350,12 @@ library ArrayLibUInt {
 
     /***** Batched Ops ******/
     /**
-     * @dev Get a batch of items.
+     * @dev Get a batch of items. Optimized to minimize SLOADs.
      * @param bitLength uint bit lengthh
      * @param slot storage slot
-     * @param iArray index array
+     * @param iArray index array. Assumes sorted for purpose of SLOAD optimization though still works if unsorted.
      * @return valList
      *
-     * TODO: optimize for bitpacked SLOAD
      */
     function getBatch(
         uint8 bitLength,
@@ -364,9 +363,26 @@ library ArrayLibUInt {
         uint256[] memory iArray
     ) internal view returns (uint256[] memory valList) {
         valList = new uint256[](iArray.length);
+        uint256 slotPerStorage = 256 / bitLength;
 
-        for (uint256 i = 0; i < iArray.length; i++) {
-            valList[i] = get(bitLength, slot, iArray[i]);
+        uint256 slotPrev = iArray[0] / slotPerStorage;
+        uint256 slotDataPrev = _getSlotData(slot, slotPrev); //SLOAD
+
+        uint256 subIdxInit = iArray[0] % slotPerStorage;
+        valList[0] = _getSlotDataValueAt(bitLength, slotDataPrev, subIdxInit);
+
+        for (uint256 i = 1; i < iArray.length; i++) {
+            uint256 slotCurr = iArray[i] / slotPerStorage;
+            uint256 subIdx = iArray[i] % slotPerStorage;
+            if (slotCurr == slotPrev) {
+                //Use cached slot data
+                valList[i] = _getSlotDataValueAt(bitLength, slotDataPrev, subIdx);
+            } else {
+                //New storage slot data
+                slotPrev = slotCurr;
+                slotDataPrev = _getSlotData(slot, slotPrev); //SLOAD
+                valList[i] = _getSlotDataValueAt(bitLength, slotDataPrev, subIdx);
+            }
         }
     }
 
@@ -374,7 +390,7 @@ library ArrayLibUInt {
      * @dev Set a batch of values in the array.
      * @param bitLength uint bit length
      * @param slot storage slot
-     * @param iArray index array
+     * @param iArray index array. Assumes sorted for purpose of SLOAD optimization though still works if unsorted.
      * @param valArray value array
      *
      * TODO: optimize for bitpacked SSTORE

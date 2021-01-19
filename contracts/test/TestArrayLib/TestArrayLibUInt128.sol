@@ -31,4 +31,21 @@ contract TestArrayLibUInt128 is IListUInt128 {
     function pop() external override {
         array.pop();
     }
+
+    /***** Batched Ops ******/
+    function getBatch(uint256[] memory iArray) external view override returns (uint256[] memory) {
+        return array.getBatch(iArray);
+    }
+
+    function setBatch(uint256[] memory iArray, uint256[] memory valArray) external override {
+        array.setBatch(iArray, valArray);
+    }
+
+    function pushBatch(uint256[] memory valArray) external override {
+        array.pushBatch(valArray);
+    }
+
+    function popBatch(uint256 n) external override {
+        array.popBatch(n);
+    }
 }

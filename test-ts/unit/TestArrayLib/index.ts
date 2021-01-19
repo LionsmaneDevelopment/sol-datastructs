@@ -66,113 +66,149 @@ export function testArrayLib(test: ArrayLibUIntTest) {
             list = await test.contract.new();
         });
 
-        it('push(), swap() full storage slot', async () => {
-            const n = Math.floor(256 / BIT_LENGTH) + 1;
-            const expected = Array.from({ length: n }).map((_, idx) => MAX_INT.sub(Web3.utils.toBN(idx)).toString());
-            const promiseList = [];
-            for (const i of expected) {
-                promiseList.push(list.push(i));
-            }
-
-            const results = (await Promise.all(promiseList)).map(r => r.receipt.gasUsed - 20000);
-            const total = results.reduce((acc, v) => acc + v, 0);
-            const avg = total / results.length;
-            console.debug(`${test.name} push() full storage slot: ${avg} (avg)`);
-            await equalArray(list, expected);
-
-            //Regular swap, items are in separate storage slots
-            const swapTx = await list.swap(0, n - 1);
-            assert.equal(
-                (await list.get(0)).toString(),
-                MAX_INT.sub(Web3.utils.toBN(n - 1)).toString(),
-                'Invalid swap result array[0]',
-            );
-            assert.equal(
-                (await list.get(n - 1)).toString(),
-                MAX_INT.toString(),
-                'Invalid regular swap result array[n-1]',
-            );
-            console.debug(`${test.name} swap() regular: ${swapTx.receipt.gasUsed - 20000}`);
-            //Reset
-            await list.swap(0, n - 1);
-            //Quick swap, items are in same storage slot
-            const swapTx2 = await list.swap(0, n - 2);
-            assert.equal(
-                (await list.get(0)).toString(),
-                MAX_INT.sub(Web3.utils.toBN(n - 2)).toString(),
-                'Invalid swap result array[0]',
-            );
-            assert.equal(
-                (await list.get(n - 2)).toString(),
-                MAX_INT.toString(),
-                'Invalid quick swap result array[n-2]',
-            );
-            console.debug(`${test.name} swap() quick: ${swapTx2.receipt.gasUsed - 20000}`);
-            //Reset
-            await list.swap(0, n - 2);
-            //Double check array unchanged
-            await equalArray(list, expected);
-        });
-
-        it('push() 100x', async () => {
-            const expected = randomData(100).map(x => `${x}`);
-            const promiseList = [];
-            for (const i of expected) {
-                promiseList.push(list.push(i));
-            }
-
-            const results = (await Promise.all(promiseList)).map(r => r.receipt.gasUsed - 20000);
-            const total = results.reduce((acc, v) => acc + v, 0);
-            const avg = total / results.length;
-            console.debug(`${test.name} push() 100x: ${avg} (avg)`);
-
-            await equalArray(list, expected);
-        });
-
-        it('push()/set()/swap()/pop() 100x', async () => {
-            const expected: number[] = [];
-            const promiseList = [];
-
-            let length = 0; //bypass need to call length()
-            for (let i = 0; i < 100; i++) {
-                const writeType = WriteOpTypes[Math.floor(Math.random() * WriteOpTypes.length)];
-                const writeIdx = length > 0 ? Math.floor((Math.random() * 65536) % length) : 0;
-                let writeVal = Math.floor(Math.random() * 65536);
-                switch (writeType) {
-                    case 'PUSH':
-                        promiseList.push(list.push(writeVal));
-                        expected.push(writeVal);
-                        length++;
-                        break;
-                    case 'SET':
-                        if (length < 1) break;
-                        promiseList.push(list.set(writeIdx, writeVal));
-                        expected[writeIdx] = writeVal;
-                        break;
-                    case 'SWAP':
-                        if (length < 2) break;
-                        writeVal = writeVal % length;
-                        promiseList.push(list.swap(writeIdx, writeVal));
-                        const t = expected[writeIdx];
-                        expected[writeIdx] = expected[writeVal];
-                        expected[writeVal] = t;
-                        break;
-                    case 'POP':
-                        if (length < 1) break;
-                        promiseList.push(list.pop());
-                        expected.pop();
-                        length--;
-                        break;
+        describe('full storage slot', function() {
+            let list: IListUIntInstance;
+            let initialExpected: string[];
+            let initalGasCosts: number[];
+            beforeEach(async () => {
+                list = await test.contract.new();
+                const n = Math.floor(256 / BIT_LENGTH) + 1;
+                const expected = Array.from({ length: n }).map((_, idx) =>
+                    MAX_INT.sub(Web3.utils.toBN(idx)).toString(),
+                );
+                initialExpected = expected;
+                const promiseList = [];
+                for (const i of expected) {
+                    promiseList.push(list.push(i));
                 }
-            }
+                initalGasCosts = (await Promise.all(promiseList)).map(r => r.receipt.gasUsed - 20000);
+            });
 
-            const results = (await Promise.all(promiseList)).map(r => r.receipt.gasUsed - 20000);
-            const total = results.reduce((acc, v) => acc + v, 0);
-            const avg = total / results.length;
-            console.debug(`${test.name} random ops 100x: ${avg} (avg)`);
+            it('arrayEqual()', async () => {
+                const results = initalGasCosts;
+                const total = results.reduce((acc, v) => acc + v, 0);
+                const avg = total / results.length;
+                console.debug(`${test.name} push() full storage slot: ${avg} (avg)`);
+                await equalArray(list, initialExpected);
+            });
 
-            const expectedString = expected.map(x => `${x}`);
-            await equalArray(list, expectedString);
+            it('swap()', async () => {
+                //Regular swap, items are in separate storage slots
+                const n = initialExpected.length;
+                const swapTx = await list.swap(0, n - 1);
+                assert.equal(
+                    (await list.get(0)).toString(),
+                    MAX_INT.sub(Web3.utils.toBN(n - 1)).toString(),
+                    'Invalid swap result array[0]',
+                );
+                assert.equal(
+                    (await list.get(n - 1)).toString(),
+                    MAX_INT.toString(),
+                    'Invalid regular swap result array[n-1]',
+                );
+                console.debug(`${test.name} swap() regular: ${swapTx.receipt.gasUsed - 20000}`);
+                //Reset
+                await list.swap(0, n - 1);
+                //Quick swap, items are in same storage slot
+                const swapTx2 = await list.swap(0, n - 2);
+                assert.equal(
+                    (await list.get(0)).toString(),
+                    MAX_INT.sub(Web3.utils.toBN(n - 2)).toString(),
+                    'Invalid swap result array[0]',
+                );
+                assert.equal(
+                    (await list.get(n - 2)).toString(),
+                    MAX_INT.toString(),
+                    'Invalid quick swap result array[n-2]',
+                );
+                console.debug(`${test.name} swap() quick: ${swapTx2.receipt.gasUsed - 20000}`);
+                //Reset
+                await list.swap(0, n - 2);
+                //Double check array unchanged
+                await equalArray(list, initialExpected);
+            });
+
+            it('getBatch()', async () => {
+                const n = initialExpected.length;
+                const idxList = Array.from({ length: n }).map((_, i) => i);
+                const promiseList = [];
+
+                for (const i of idxList) {
+                    promiseList.push(list.get(i));
+                }
+
+                const result1 = (await Promise.all(promiseList)).map(n => n.toString());
+                const result2 = (await list.getBatch(idxList)).map(v => v.toString());
+
+                console.debug(idxList);
+                console.debug(result1);
+                console.debug(result2);
+
+                assert.deepEqual(result1, result2, 'get() != getBatch()');
+            });
+        });
+
+        describe('fuzzing', function() {
+            it('push() 100x', async () => {
+                const expected = randomData(100).map(x => `${x}`);
+                const promiseList = [];
+                for (const i of expected) {
+                    promiseList.push(list.push(i));
+                }
+
+                const results = (await Promise.all(promiseList)).map(r => r.receipt.gasUsed - 20000);
+                const total = results.reduce((acc, v) => acc + v, 0);
+                const avg = total / results.length;
+                console.debug(`${test.name} push() 100x: ${avg} (avg)`);
+
+                await equalArray(list, expected);
+            });
+
+            it('push()/set()/swap()/pop() 100x', async () => {
+                const expected: number[] = [];
+                const promiseList = [];
+
+                let length = 0; //bypass need to call length()
+                for (let i = 0; i < 100; i++) {
+                    const writeType = WriteOpTypes[Math.floor(Math.random() * WriteOpTypes.length)];
+                    const writeIdx = length > 0 ? Math.floor((Math.random() * 65536) % length) : 0;
+                    let writeVal = Math.floor(Math.random() * 65536);
+                    switch (writeType) {
+                        case 'PUSH':
+                            promiseList.push(list.push(writeVal));
+                            expected.push(writeVal);
+                            length++;
+                            break;
+                        case 'SET':
+                            if (length < 1) break;
+                            promiseList.push(list.set(writeIdx, writeVal));
+                            expected[writeIdx] = writeVal;
+                            break;
+                        case 'SWAP':
+                            if (length < 2) break;
+                            writeVal = writeVal % length;
+                            promiseList.push(list.swap(writeIdx, writeVal));
+                            const t = expected[writeIdx];
+                            expected[writeIdx] = expected[writeVal];
+                            expected[writeVal] = t;
+                            break;
+                        case 'POP':
+                            if (length < 1) break;
+                            promiseList.push(list.pop());
+                            expected.pop();
+                            length--;
+                            break;
+                    }
+                }
+
+                const results = (await Promise.all(promiseList)).map(r => r.receipt.gasUsed - 20000);
+                const total = results.reduce((acc, v) => acc + v, 0);
+                const avg = total / results.length;
+                console.debug(`${test.name} random ops 100x: ${avg} (avg)`);
+
+                const expectedString = expected.map(x => `${x}`);
+                await equalArray(list, expectedString);
+            });
         });
     });
 }
