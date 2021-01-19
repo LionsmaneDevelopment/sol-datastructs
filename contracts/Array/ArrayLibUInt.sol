@@ -393,7 +393,6 @@ library ArrayLibUInt {
      * @param iArray index array. Assumes sorted for purpose of SLOAD optimization though still works if unsorted.
      * @param valArray value array
      *
-     * TODO: optimize for bitpacked SSTORE
      */
     function setBatch(
         uint8 bitLength,
@@ -402,10 +401,32 @@ library ArrayLibUInt {
         uint256[] memory valArray
     ) internal {
         require(iArray.length == valArray.length);
+        uint256 slotPerStorage = 256 / bitLength;
 
-        for (uint256 i = 0; i < iArray.length; i++) {
-            set(bitLength, slot, iArray[i], valArray[i]);
+        uint256 slotPrev = iArray[0] / slotPerStorage;
+        uint256 slotDataPrev = _getSlotData(slot, slotPrev); //SLOAD
+
+        uint256 subIdxInit = iArray[0] % slotPerStorage;
+        slotDataPrev = _setSlotDataValueAt(bitLength, slotDataPrev, subIdxInit, valArray[0]);
+
+        for (uint256 i = 1; i < iArray.length; i++) {
+            uint256 slotCurr = iArray[i] / slotPerStorage;
+            uint256 subIdx = iArray[i] % slotPerStorage;
+            if (slotCurr == slotPrev) {
+                //Set cached slot data
+                slotDataPrev = _setSlotDataValueAt(bitLength, slotDataPrev, subIdx, valArray[i]);
+            } else {
+                //Write new data
+                _setSlotData(slot, slotPrev, slotDataPrev); //STORE
+                //New storage slot data
+                slotPrev = slotCurr;
+                slotDataPrev = _getSlotData(slot, slotPrev); //SLOAD
+                slotDataPrev = _setSlotDataValueAt(bitLength, slotDataPrev, subIdx, valArray[i]);
+            }
         }
+
+        //Write new data
+        _setSlotData(slot, slotPrev, slotDataPrev); //STORE
     }
 
     /**

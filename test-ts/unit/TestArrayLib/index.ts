@@ -140,11 +140,17 @@ export function testArrayLib(test: ArrayLibUIntTest) {
                 const result1 = (await Promise.all(promiseList)).map(n => n.toString());
                 const result2 = (await list.getBatch(idxList)).map(v => v.toString());
 
-                console.debug(idxList);
-                console.debug(result1);
-                console.debug(result2);
-
                 assert.deepEqual(result1, result2, 'get() != getBatch()');
+            });
+
+            it('setBatch()', async () => {
+                const n = initialExpected.length;
+                const idxList = Array.from({ length: n }).map((_, i) => `${i}`);
+                const setBatchTx = await list.setBatch(idxList, idxList);
+
+                console.debug(`${test.name} setBatch(): ${setBatchTx.receipt.gasUsed - 20000}`);
+
+                await equalArray(list, idxList);
             });
         });
 
