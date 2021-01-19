@@ -32,6 +32,92 @@ library ArrayLibUInt {
         }
     }
 
+    /***** Raw Storage Ops ******/
+    /**
+     * @dev Get full storage slot at slotIndex
+     * @param slot storage slot
+     * @param slotIdx slot index
+     * @return val
+     *
+     */
+    function _getSlotData(bytes32 slot, uint256 slotIdx) internal view returns (uint256 val) {
+        assembly {
+            mstore(0x0, slot)
+            let p := keccak256(0x0, 0x20) //array[0] storage
+            let idx := add(p, slotIdx) //array[idx] storage
+            val := sload(idx) //load cur value
+        }
+    }
+
+    /**
+     * @dev Set full storage slot at slotIndex
+     * @param slot storage slot
+     * @param slotIdx slot index
+     * @param val value
+     *
+     */
+    function _setSlotData(
+        bytes32 slot,
+        uint256 slotIdx,
+        uint256 val
+    ) internal {
+        assembly {
+            mstore(0x0, slot)
+            let p := keccak256(0x0, 0x20) //array[0] storage
+            let idx := add(p, slotIdx) //array[idx] storage
+            sstore(idx, val) //load cur value
+        }
+    }
+
+    /**
+     * @dev Parse slot data at index to correct bit length
+     * @param bitLength uint bit length
+     * @param slotData raw slot data
+     * @param subIdx indexed position of value in slot
+     * @return val
+     *
+     */
+    function _getSlotDataValueAt(
+        uint8 bitLength,
+        uint256 slotData,
+        uint256 subIdx
+    ) internal pure returns (uint256 val) {
+        uint256 slotPerStorage = 256 / bitLength;
+        uint256 bitMask = ~(uint256(-1) << bitLength); // 000...FFFF
+
+        uint256 bitShift = (slotPerStorage - 1 - subIdx) * bitLength;
+        val = slotData >> bitShift;
+        val = val & bitMask;
+    }
+
+    /**
+     * @dev Encode value into the raw slot data
+     * @param bitLength uint bit length
+     * @param slotData raw slot data
+     * @param subIdx indexed position of value in slot
+     * @param val value
+     * @return newSlotData
+     *
+     */
+    function _setSlotDataValueAt(
+        uint8 bitLength,
+        uint256 slotData,
+        uint256 subIdx,
+        uint256 val
+    ) internal pure returns (uint256 newSlotData) {
+        uint256 slotPerStorage = 256 / bitLength;
+        uint256 bitMask = ~(uint256(-1) << bitLength); // 000...FFFF
+
+        uint256 bitShift = (slotPerStorage - 1 - subIdx) * bitLength;
+
+        val = val & bitMask;
+        val = val << bitShift;
+
+        uint256 slotBitmask = ~(bitMask << bitShift);
+        newSlotData = (slotData & slotBitmask) | val;
+    }
+
+    /***** Array-Indexed Ops ******/
     /**
      * @dev Get item at array[i]
      * @param bitLength uint bit length
@@ -216,11 +302,28 @@ library ArrayLibUInt {
         uint256 i,
         uint256 j
     ) internal {
-        //Naive implementation
-        uint256 a = get(bitLength, slot, i);
-        uint256 b = get(bitLength, slot, j);
-        set(bitLength, slot, i, b);
-        set(bitLength, slot, j, a);
+        uint256 slotPerStorage = 256 / bitLength;
+        uint256 slotI = i / slotPerStorage;
+        uint256 slotJ = j / slotPerStorage;
+        if (slotI == slotJ) {
+            uint256 subIdxI = i % slotPerStorage;
+            uint256 subIdxJ = j % slotPerStorage;
+            //Same storage slot, swap using bit operations
+            uint256 slotData = _getSlotData(slot, slotI);
+            uint256 a = _getSlotDataValueAt(bitLength, slotData, subIdxI);
+            uint256 b = _getSlotDataValueAt(bitLength, slotData, subIdxJ);
+
+            slotData = _setSlotDataValueAt(bitLength, slotData, subIdxI, b);
+            slotData = _setSlotDataValueAt(bitLength, slotData, subIdxJ, a);
+
+            _setSlotData(slot, slotI, slotData);
+        } else {
+            //Naive implementation
+            uint256 a = get(bitLength, slot, i);
+            uint256 b = get(bitLength, slot, j);
+            set(bitLength, slot, i, b);
+            set(bitLength, slot, j, a);
+        }
     }
 
     /**
@@ -245,6 +348,7 @@ library ArrayLibUInt {
         swap(bitLength, slot, i, j);
     }
 
+    /***** Batched Ops ******/
     /**
      * @dev Get a batch of items.
      * @param bitLength uint bit lengthh
