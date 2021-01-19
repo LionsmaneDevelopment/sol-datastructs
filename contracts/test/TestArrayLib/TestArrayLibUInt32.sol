@@ -1,3 +1,4 @@
+//SPDX-License-Identifier: MIT
 pragma solidity >=0.6.0;
 import '../../Array/IListUInt32.sol';
 import '../../Array/ArrayLibUInt32.sol';

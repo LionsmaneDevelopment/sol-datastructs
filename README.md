@@ -30,5 +30,5 @@ Computes logarithm for any base (provided magic constant logN(2) is stored). Thi
 
 ## License
 
-2020 Leo Vigna
+2020 Lionsmane Development
 MIT License.
