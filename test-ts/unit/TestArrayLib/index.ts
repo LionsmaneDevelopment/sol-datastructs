@@ -154,14 +154,16 @@ export function testArrayLib(test: ArrayLibUIntTest) {
             });
 
             it('popBatch()', async () => {
+                const n = initialExpected.length;
                 initialExpected.pop();
                 await list.popBatch(1);
                 await equalArray(list, initialExpected);
 
-                initialExpected.pop();
-                initialExpected.pop();
-                initialExpected.pop();
-                await list.popBatch(3);
+                for (let i = 0; i < Math.floor(n / 2); i++) {
+                    initialExpected.pop();
+                }
+
+                await list.popBatch(Math.floor(n / 2));
                 await equalArray(list, initialExpected);
             });
         });

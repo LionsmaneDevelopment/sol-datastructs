@@ -309,14 +309,14 @@ library ArrayLibUInt {
             uint256 subIdxI = i % slotPerStorage;
             uint256 subIdxJ = j % slotPerStorage;
             //Same storage slot, swap using bit operations
-            uint256 slotData = _getSlotData(slot, slotI);
+            uint256 slotData = _getSlotData(slot, slotI); //SLOAD
             uint256 a = _getSlotDataValueAt(bitLength, slotData, subIdxI);
             uint256 b = _getSlotDataValueAt(bitLength, slotData, subIdxJ);
 
             slotData = _setSlotDataValueAt(bitLength, slotData, subIdxI, b);
             slotData = _setSlotDataValueAt(bitLength, slotData, subIdxJ, a);
 
-            _setSlotData(slot, slotI, slotData);
+            _setSlotData(slot, slotI, slotData); //SSTORE
         } else {
             //Naive implementation
             uint256 a = get(bitLength, slot, i);

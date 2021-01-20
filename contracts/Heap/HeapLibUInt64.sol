@@ -475,23 +475,54 @@ library HeapLibUInt64 {
         iVal = slot.get(i);
 
         while (true) {
-            uint256[] memory lIdx = TreeLib.leavesIdx(a, b, i); // leaf indices in sorted order
-            uint256 minIdx = lIdx[0];
-            uint64 minVal = slot.get(minIdx);
-            if (minIdx >= length) {
-                break; //Null pointer, done heapifyDown
-            }
-
-            // Find min leaf
-            for (uint256 j = 1; j < lIdx.length; j++) {
-                uint256 cmpIdx = lIdx[j];
-                if (cmpIdx >= length) {
-                    break; //Null pointer, done find minLeaf
+            uint256 minIdx;
+            uint64 minVal;
+            if (i % a == 0) {
+                minIdx = i + 1;
+                if (minIdx >= length) {
+                    break; //Null pointer, done heapifyDown
                 }
-                uint64 cmpVal = slot.get(cmpIdx);
-                bool c = compare(minVal, cmpVal, compareSelector); // a <= b
-                minIdx = c ? minIdx : cmpIdx;
-                minVal = c ? minVal : cmpVal;
+
+                //Adjacent leaves, use batch reads
+                uint256[] memory idxList = new uint256[](4);
+                idxList[0] = i;
+                idxList[1] = i + 1;
+                idxList[2] = i + 2;
+                idxList[3] = i + 3;
+                uint256[] memory valList = slot.getBatch(idxList);
+
+                minVal = uint64(valList[1]);
+
+                // Find min leaf
+                for (uint256 j = 2; j < valList.length; j++) {
+                    uint256 cmpIdx = i + j;
+                    if (cmpIdx >= length) {
+                        break; //Null pointer, done find minLeaf
+                    }
+                    uint64 cmpVal = uint64(valList[j]); //cached value
+                    bool c = compare(minVal, cmpVal, compareSelector); // a <= b
+                    minIdx = c ? minIdx : cmpIdx;
+                    minVal = c ? minVal : cmpVal;
+                }
+            } else {
+                uint256[] memory lIdx = TreeLib.leavesIdx(a, b, i); // leaf indices in sorted order
+                minIdx = lIdx[0];
+                if (minIdx >= length) {
+                    break; //Null pointer, done heapifyDown
+                }
+                minVal = slot.get(minIdx);
+
+                // Find min leaf
+                for (uint256 j = 1; j < lIdx.length; j++) {
+                    uint256 cmpIdx = lIdx[j];
+                    if (cmpIdx >= length) {
+                        break; //Null pointer, done find minLeaf
+                    }
+                    uint64 cmpVal = slot.get(cmpIdx);
+                    bool c = compare(minVal, cmpVal, compareSelector); // a <= b
+                    minIdx = c ? minIdx : cmpIdx;
+                    minVal = c ? minVal : cmpVal;
+                }
             }
 
             // Swap with min leaf
