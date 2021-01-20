@@ -10,23 +10,46 @@ to a hard-coded bitLength and then use that library within contracts.
 The storage layout conforms to the Solidity standard as described at
 https://docs.soliditylang.org/en/latest/internals/layout_in_storage.html
 
-Potential improvements:
+Error Codes (to save on gas costs):
 
--   Optimized batch inserts and reads
--   Optimized swaps
--   Bounds checked save insert
+-   1: Out of bounds
+-   2: Invalid arguments
 
 ### `len(bytes32 slot) → uint256 length` (internal)
 
 Get length of the array
 
+### `_getSlotData(bytes32 slot, uint256 slotIdx) → uint256 val` (internal)
+
+Get full storage slot at slotIndex
+
+### `_setSlotData(bytes32 slot, uint256 slotIdx, uint256 val)` (internal)
+
+Set full storage slot at slotIndex
+
+### `_getSlotDataValueAt(uint8 bitLength, uint256 slotData, uint256 subIdx) → uint256 val` (internal)
+
+Parse slot data at index to correct bit length
+
+### `_setSlotDataValueAt(uint8 bitLength, uint256 slotData, uint256 subIdx, uint256 val) → uint256 newSlotData` (internal)
+
+Encode value into the raw slot data
+
 ### `get(uint8 bitLength, bytes32 slot, uint256 i) → uint256 val` (internal)
 
 Get item at array[i]
 
+### `getSAFE(uint8 bitLength, bytes32 slot, uint256 i) → uint256 val` (internal)
+
+get() with bounds check
+
 ### `set(uint8 bitLength, bytes32 slot, uint256 i, uint256 val)` (internal)
 
 Set array[i] = val
+
+### `setSAFE(uint8 bitLength, bytes32 slot, uint256 i, uint256 val)` (internal)
+
+set() with bounds check
 
 ### `push(uint8 bitLength, bytes32 slot, uint256 val)` (internal)
 
@@ -40,9 +63,13 @@ Pop end val of the array, decreasing its length.
 
 Swap two values at i, j.
 
+### `swapSAFE(uint8 bitLength, bytes32 slot, uint256 i, uint256 j)` (internal)
+
+swap() with bounds check
+
 ### `getBatch(uint8 bitLength, bytes32 slot, uint256[] iArray) → uint256[] valList` (internal)
 
-Get a batch of items.
+Get a batch of items. Optimized to minimize SLOADs.
 
 ### `setBatch(uint8 bitLength, bytes32 slot, uint256[] iArray, uint256[] valArray)` (internal)
 
