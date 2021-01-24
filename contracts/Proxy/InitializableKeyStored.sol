@@ -14,7 +14,7 @@ import '../Storage/KeyStoreLib.sol';
  *
  * This version of the Initializable contract uses KeyStoreLib to store the
  * variables at InitializableKeyStored._initialized and
- * InitializableKeyStored._initializing.address.
+ * InitializableKeyStored._initializing.
  */
 
 /**
