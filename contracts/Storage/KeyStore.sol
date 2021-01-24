@@ -1,16 +1,16 @@
 //SPDX-License-Identifier: MIT
 pragma solidity >=0.6.0;
 
-import './UnstructuredStorageLib.sol';
+import './KeyStoreLib.sol';
 
 /**
- * @dev An example external facing contract using UnstructuredStorageLib
+ * @dev An example external facing contract using KeyStoreLib
  *
- * WARNING: Contracts should use UnstructuredStorageLib directly (recommended) or override UnstructuredStorage setter methods.
+ * WARNING: Contracts should use KeyStoreLib directly (recommended) or override KeyStore setter methods.
  *
  */
-contract UnstructuredStorage {
-    using UnstructuredStorageLib for bytes32;
+contract KeyStore {
+    using KeyStoreLib for bytes32;
 
     /**
      * @dev Get uint256

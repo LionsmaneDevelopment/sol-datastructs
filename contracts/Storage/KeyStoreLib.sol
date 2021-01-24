@@ -10,7 +10,7 @@ pragma solidity >=0.6.0;
  * readability at the cost of some overhead.
  *
  */
-library UnstructuredStorageLib {
+library KeyStoreLib {
     /**
      * @dev Get uint256
      * @param slot storage slot
@@ -30,6 +30,30 @@ library UnstructuredStorageLib {
      *
      */
     function setUInt256(bytes32 slot, uint256 v) internal {
+        assembly {
+            sstore(slot, v)
+        }
+    }
+
+    /**
+     * @dev Get bool
+     * @param slot storage slot
+     * @return v
+     *
+     */
+    function getBool(bytes32 slot) internal view returns (bool v) {
+        assembly {
+            v := sload(slot)
+        }
+    }
+
+    /**
+     * @dev Set bool
+     * @param slot storage slot
+     * @param v value
+     *
+     */
+    function setBool(bytes32 slot, bool v) internal {
         assembly {
             sstore(slot, v)
         }

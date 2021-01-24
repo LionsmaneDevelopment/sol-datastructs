@@ -10,7 +10,7 @@ import {
     TestArrayLibUInt128Contract,
     TestTreeLibContract,
     TestLogBaseNContract,
-    UnstructuredStorageContract,
+    KeyStoreContract,
     IHeapUInt16Instance,
     IHeapUInt32Instance,
     IListUInt16Instance,
@@ -23,7 +23,7 @@ import {
     TestHeapLibUInt32B16Instance,
     TestHeapLibUInt32B8Instance,
     TestHeapLibUInt64B16Instance,
-    UnstructuredStorageInstance
+    KeyStoreInstance
 } from "../types/truffle-contracts"
 
 import TestLogBaseNArtifact from "../build/contracts/TestLogBaseN.json"
@@ -41,7 +41,7 @@ import TestHeapLibUInt32B8Artifact from "../build/contracts/TestHeapLibUInt32B8.
 import TestHeapLibUInt32B16Artifact from "../build/contracts/TestHeapLibUInt32B16.json"
 import TestHeapLibUInt64B16Artifact from "../build/contracts/TestHeapLibUInt64B16.json"
 
-import UnstructuredStorageArtifact from "../build/contracts/UnstructuredStorage.json"
+import KeyStoreArtifact from "../build/contracts/KeyStore.json"
 
 const Contract = require('@truffle/contract');
 
@@ -81,14 +81,14 @@ const TestHeapLibUIntContracts = {
 export type TestHeapLibUIntName = keyof (typeof TestHeapLibUIntContracts)
 export type HeapLibUIntName = 'HeapLibUInt16' | 'HeapLibUInt32' | 'HeapLibUInt64'
 
-export const UnstructuredStorage = Contract(UnstructuredStorageArtifact) as UnstructuredStorageContract
+export const KeyStore = Contract(KeyStoreArtifact) as KeyStoreContract
 
 export const contracts = {
     ...TestArrayLibContracts,
     ...TestHeapLibUIntContracts,
     TestLogBaseN,
     TestTreeLib,
-    UnstructuredStorage
+    KeyStore
 }
 export type ContractName = keyof typeof contracts;
 
