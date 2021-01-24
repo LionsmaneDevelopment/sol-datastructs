@@ -13,8 +13,8 @@ import '../Storage/KeyStoreLib.sol';
  * Initializable but this cannot always be done (eg. using a library such as OpenGSN).
  *
  * This version of the Initializable contract uses KeyStoreLib to store the
- * variables at InitializableKeyStore._initialized and
- * InitializableKeyStore._initializing.address.
+ * variables at InitializableKeyStored._initialized and
+ * InitializableKeyStored._initializing.address.
  */
 
 /**
@@ -29,18 +29,18 @@ import '../Storage/KeyStoreLib.sol';
  * CAUTION: When used with inheritance, manual care must be taken to not invoke a parent initializer twice, or to ensure
  * that all initializers are idempotent. This is not verified automatically as constructors are by Solidity.
  */
-abstract contract InitializableKeyStore {
+abstract contract InitializableKeyStored {
     using KeyStoreLib for bytes32;
 
     /**
      * @dev Indicates that the contract has been initialized.
      */
-    bytes32 private constant _initializedSlot = keccak256('InitializableKeyStore._initialized');
+    bytes32 private constant _initializedSlot = keccak256('InitializableKeyStored._initialized');
 
     /**
      * @dev Indicates that the contract is in the process of being initialized.
      */
-    bytes32 private constant _initializingSlot = keccak256('InitializableKeyStore._initializing');
+    bytes32 private constant _initializingSlot = keccak256('InitializableKeyStored._initializing');
 
     /**
      * @dev Modifier to protect an initializer function from being invoked twice.
